@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"net"
 	"net/http"
@@ -147,6 +148,10 @@ func handleSPULRequest(conn net.Conn) {
 		for j := 0; j < blockSize; j++ {
 			sendBuffer[j] = payload[i*int(blockSize)+j]
 		}
+
+		hexBuffer := hex.EncodeToString(sendBuffer)
+		fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 10) + ", buffer: " + hexBuffer)
+		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 10) + ", buffer: " + hexBuffer + "\r\n")
 
 		go sendConcava(deviceID, sendBuffer)
 	}
