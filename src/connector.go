@@ -102,11 +102,11 @@ func handleSPULRequest(conn net.Conn) {
 	headerSize, err := conn.Read(header)
 	if err != nil {
 		fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL header read error: " + err.Error())
-		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL header read error" + err.Error() + "\r\n")
+		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL header read error: " + err.Error() + "\r\n")
 		return
 	} else if int64(headerSize) != HEADER_SIZE {
 		fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL header size error: " + err.Error())
-		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL header size error" + err.Error() + "\r\n")
+		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL header size error: " + err.Error() + "\r\n")
 		return
 	}
 
@@ -148,13 +148,14 @@ func handleSPULRequest(conn net.Conn) {
 			sendBuffer[j] = payload[i*int(blockSize)+j]
 		}
 
-		go sendConcava(sendBuffer)
+		go sendConcava(deviceID, sendBuffer)
 	}
 }
 
-func sendConcava(buffer []byte) {
-	req, _ := http.NewRequest("POST", CONCAVA_URL, bytes.NewBuffer(buffer))
-	req.Header.Set("X-Auth-Token", X_AUTH_TOKEN)
+func sendConcava(deviceID uint64, buffer []byte) {
+	req, _ := http.NewRequest("PUT", fmt.Sprintf(CONCAVA_URL, deviceID), bytes.NewBuffer(buffer))
+	req.Header.Set("Content-Type", "application/octet-stream")
+	req.Header.Set("Authorization", "Token "+X_AUTH_TOKEN)
 	req.Close = true
 
 	var client http.Client
