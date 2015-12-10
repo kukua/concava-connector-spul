@@ -5,10 +5,12 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -153,16 +155,33 @@ func handleSPULRequest(conn net.Conn) {
 		fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 10) + ", buffer: " + hexBuffer)
 		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 10) + ", buffer: " + hexBuffer + "\r\n")
 
-		go sendConcava(deviceID, sendBuffer)
+		go sendConcava(deviceID, sendBuffer, conn)
 	}
 }
 
-func sendConcava(deviceID uint64, buffer []byte) {
-	req, _ := http.NewRequest("PUT", fmt.Sprintf(CONCAVA_URL, deviceID), bytes.NewBuffer(buffer))
+func sendConcava(deviceID uint64, buffer []byte, conn net.Conn) {
+	req, err := http.NewRequest("PUT", fmt.Sprintf(CONCAVA_URL, strings.ToLower(fmt.Sprintf("%016X", deviceID))), bytes.NewBuffer(buffer))
+	if err != nil {
+		fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "ConCaVa NewRequest error: " + err.Error())
+		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "ConCaVa NewRequest error: " + err.Error() + "\r\n")
+		return
+	}
+
 	req.Header.Set("Content-Type", "application/octet-stream")
 	req.Header.Set("Authorization", "Token "+X_AUTH_TOKEN)
 	req.Close = true
 
 	var client http.Client
-	client.Do(req)
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "ConCaVa PUT error: " + err.Error())
+		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "ConCaVa PUT error: " + err.Error() + "\r\n")
+		return
+	}
+	if resp.StatusCode != 200 {
+		body, _ := ioutil.ReadAll(resp.Body)
+		fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "ConCaVa error response: " + strconv.Itoa(resp.StatusCode) + " " + string(body))
+		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "ConCaVa error response: " + strconv.Itoa(resp.StatusCode) + " " + string(body) + "\r\n")
+		return
+	}
 }
