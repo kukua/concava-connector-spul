@@ -64,9 +64,9 @@
             
                 <li class="toctree-l3"><a href="#introduction">Introduction</a></li>
                 
-                    <li><a class="toctree-l4" href="#problem">Problem</a></li>
+                    <li><a class="toctree-l4" href="#protocol-for-2g3g-data-connection">Protocol for 2G/3G data connection</a></li>
                 
-                    <li><a class="toctree-l4" href="#solution">Solution</a></li>
+                    <li><a class="toctree-l4" href="#data-usage">Data usage</a></li>
                 
             
             </ul>
@@ -135,42 +135,26 @@
             <div class="section">
               
                 <h1 id="introduction">Introduction</h1>
-<p>This chapter introduces the problem ConCaVa is trying to solve.</p>
-<h2 id="problem">Problem</h2>
-<p>Efficiently processing sensor data is hard. As developers of IoT hardware we had the following problems:</p>
-<ol>
-<li><strong>Limited bandwidth.</strong> Sending data over the internet or 3G must be done in binary, since other formats (XML, JSON) include the data format, and therefore unnecessarily consume bandwidth.</li>
-<li><strong>Different protocols.</strong> Sensors provide different types of data and often via a different protocol (LoRa, MQTT, SigFox, etc.).</li>
-<li><strong>Calibrating and vaidating data.</strong> Measurement require different types of calibration/validation. Each of them has to be implemented seperately.</li>
-</ol>
-<h2 id="solution">Solution</h2>
-<p><strong>A generic approach.</strong> A server that processes binary payloads in a dynamic and standardized way. ConCaVa, which stands for <b>Co</b>nvert, <b>Ca</b>librate, and <b>Va</b>lidate, provides an HTTP API that processes a binary payload in three steps, before sending it to (cloud) storage. The dataflow is as follow:</p>
-<p><img alt="Dataflow" src="https://raw.githubusercontent.com/kukua/concava/master/doc/dataflow.jpg" /></p>
-<!-- TODO: Link to HTTP requests chapter -->
-
-<ol>
-<li>Sensors gather measurements and send it to a connector (independent of the protocol).</li>
-<li>The connector forwards the data in a standardized packet (HTTP request). Containing the device ID and payload in binary format.</li>
-<li>ConCaVa then Converts, Calibrates, and Validates the data before forwarding it to the storage component.</li>
-<li>The storage component stores the data (usually in the cloud).</li>
-</ol>
-<p>The use of connectors allow sensor data, that is coming from various protocols (like TCP, LoRa, JSON, XML, MQTT, SigFox, SPUL), to be send to a central server in a standardized way. This central server, ConCaVa, will process the data in three steps:</p>
-<ol>
-<li>
-<p>Convert: use dynamic metadata to parse the binary payload in to usable data.<br />
-    This metadata is determined by given device ID.</p>
-</li>
-<li>
-<p>Calibrate: transform data to a desired format using sandboxed JavaScript function body.</p>
+<p>SPUL stands for <strong>Sensor Protocol Ultra Light</strong> and is developed by <a href="http://sodaq.com/">Sodaq</a>. Spul is also a Dutch synonym for 'things'.</p>
+<h2 id="protocol-for-2g3g-data-connection">Protocol for 2G/3G data connection</h2>
+<p>SPUL is built on top of the TCP protocol and uses TCP sockets for data communication. A SPUL TCP socket server will listen on incoming data packets, process these packets and forward the packets to <a href="https://github.com/kukua/concava">ConCaVa</a>. The server will listen on a configurable TCP port (<code>5555</code> by default). To avoid fragmenting of TCP frames the maximum size of the data packets is limited to 512 bytes.</p>
+<p>The format of the TCP packet is defined as follows:</p>
 <ul>
-<li>Simple example: e.g. convert Fahrenheit to Celcius (<code>return (value - 32) / 1.8</code>)</li>
-<li>Advanced example: transform non-linear measurements to linear data</li>
+<li>12 byte header block</li>
+<li>One or more data blocks</li>
 </ul>
-</li>
-<li>
-<p>Validate: correct invalid data (e.g. values that are out of sensor range).</p>
-</li>
-</ol>
+<p>The header block contains the following bytes:</p>
+<ul>
+<li>8 byte device ID</li>
+<li>1 byte for the number of blocks</li>
+<li>1 byte for the block length</li>
+<li>2 bytes for the network (signal) quality</li>
+</ul>
+<p>A byte block length value of <code>0</code> means the remaining bytes will be send as single data record (TCP packet size minus header size). In this case the number of blocks must be <code>0</code> aswell. This results in one block consisting of <code>TCP frame size - header size = 512 - 12 = 500 bytes</code>.</p>
+<p>The TCP socket handler will receive a TCP frame, parse it into device ID &amp; blocks, and forward it to ConCaVa. The device ID will passed along in the URL as a lowercase 16 character hexidecimal string (e.g. <code>http://concava.example/v1/sensorData/aabbccddeeff1234</code>). Per block a <a href="http://kukua.github.io/concava/latest/api/">PUT request</a> will be made to ConCaVa with the block's data as binary body (content type <code>application/octet-stream</code>). Optionally an <code>Authorization</code> header is added for authentication in ConCaVa (e.g. <code>Authorization: Token &lt;token&gt;</code>).</p>
+<h2 id="data-usage">Data usage</h2>
+<p>For the Kukua weather stations a data record will be less than 20 bytes. A SPUL frame can hold at least 25 weather records. This allows us to send 20 records (3 minute samples) each hour in a single SPUL frame.</p>
+<p>Mobile Data Operators often have a mimimum session of 1000 bytes. With the implementation we will remain well within this limit. With hourly uploads the monthly data charges will be: <code>24 * 1000 bytes * 31 = 727 kilobytes</code> which means a 1 MB/month bundle will be sufficient.</p>
               
             </div>
           </div>

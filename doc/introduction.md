@@ -1,36 +1,29 @@
 # Introduction
 
-This chapter introduces the problem ConCaVa is trying to solve.
+SPUL stands for __Sensor Protocol Ultra Light__ and is developed by [Sodaq](http://sodaq.com/). Spul is also a Dutch synonym for 'things'.
 
-## Problem
+## Protocol for 2G/3G data connection
 
-Efficiently processing sensor data is hard. As developers of IoT hardware we had the following problems:
+SPUL is built on top of the TCP protocol and uses TCP sockets for data communication. A SPUL TCP socket server will listen on incoming data packets, process these packets and forward the packets to [ConCaVa](https://github.com/kukua/concava). The server will listen on a configurable TCP port (`5555` by default). To avoid fragmenting of TCP frames the maximum size of the data packets is limited to 512 bytes.
 
-1. __Limited bandwidth.__ Sending data over the internet or 3G must be done in binary, since other formats (XML, JSON) include the data format, and therefore unnecessarily consume bandwidth.
-1. __Different protocols.__ Sensors provide different types of data and often via a different protocol (LoRa, MQTT, SigFox, etc.).
-1. __Calibrating and vaidating data.__ Measurement require different types of calibration/validation. Each of them has to be implemented seperately.
+The format of the TCP packet is defined as follows:
 
-## Solution
+- 12 byte header block
+- One or more data blocks
 
-__A generic approach.__ A server that processes binary payloads in a dynamic and standardized way. ConCaVa, which stands for <b>Co</b>nvert, <b>Ca</b>librate, and <b>Va</b>lidate, provides an HTTP API that processes a binary payload in three steps, before sending it to (cloud) storage. The dataflow is as follow:
+The header block contains the following bytes:
 
-![Dataflow](https://raw.githubusercontent.com/kukua/concava/master/doc/dataflow.jpg)
+- 8 byte device ID
+- 1 byte for the number of blocks
+- 1 byte for the block length
+- 2 bytes for the network (signal) quality
 
-<!-- TODO: Link to HTTP requests chapter -->
+A byte block length value of `0` means the remaining bytes will be send as single data record (TCP packet size minus header size). In this case the number of blocks must be `0` aswell. This results in one block consisting of `TCP frame size - header size = 512 - 12 = 500 bytes`.
 
-1. Sensors gather measurements and send it to a connector (independent of the protocol).
-1. The connector forwards the data in a standardized packet (HTTP request). Containing the device ID and payload in binary format.
-1. ConCaVa then Converts, Calibrates, and Validates the data before forwarding it to the storage component.
-1. The storage component stores the data (usually in the cloud).
+The TCP socket handler will receive a TCP frame, parse it into device ID & blocks, and forward it to ConCaVa. The device ID will passed along in the URL as a lowercase 16 character hexidecimal string (e.g. `http://concava.example/v1/sensorData/aabbccddeeff1234`). Per block a [PUT request](http://kukua.github.io/concava/latest/api/) will be made to ConCaVa with the block's data as binary body (content type `application/octet-stream`). Optionally an `Authorization` header is added for authentication in ConCaVa (e.g. `Authorization: Token <token>`).
 
-The use of connectors allow sensor data, that is coming from various protocols (like TCP, LoRa, JSON, XML, MQTT, SigFox, SPUL), to be send to a central server in a standardized way. This central server, ConCaVa, will process the data in three steps:
+## Data usage
 
-1. Convert: use dynamic metadata to parse the binary payload in to usable data.  
-	This metadata is determined by given device ID.
+For the Kukua weather stations a data record will be less than 20 bytes. A SPUL frame can hold at least 25 weather records. This allows us to send 20 records (3 minute samples) each hour in a single SPUL frame.
 
-1. Calibrate: transform data to a desired format using sandboxed JavaScript function body.
-
-	- Simple example: e.g. convert Fahrenheit to Celcius (`return (value - 32) / 1.8`)
-	- Advanced example: transform non-linear measurements to linear data
-
-1. Validate: correct invalid data (e.g. values that are out of sensor range).
+Mobile Data Operators often have a mimimum session of 1000 bytes. With the implementation we will remain well within this limit. With hourly uploads the monthly data charges will be: `24 * 1000 bytes * 31 = 727 kilobytes` which means a 1 MB/month bundle will be sufficient.
