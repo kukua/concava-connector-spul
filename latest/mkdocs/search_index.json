@@ -1,0 +1,94 @@
+{
+    "docs": [
+        {
+            "location": "/", 
+            "text": "SPUL Connector\n\n\nConCaVa Connector for the SPUL protocol.\n\n\nFor contributing, providing feedback, or support go to the \nGithub repository\n.\n\nA demo page is \ncoming soon\n.", 
+            "title": "Home"
+        }, 
+        {
+            "location": "/#spul-connector", 
+            "text": "ConCaVa Connector for the SPUL protocol.  For contributing, providing feedback, or support go to the  Github repository . \nA demo page is  coming soon .", 
+            "title": "SPUL Connector"
+        }, 
+        {
+            "location": "/introduction/", 
+            "text": "Introduction\n\n\nThis chapter introduces the problem ConCaVa is trying to solve.\n\n\nProblem\n\n\nEfficiently processing sensor data is hard. As developers of IoT hardware we had the following problems:\n\n\n\n\nLimited bandwidth.\n Sending data over the internet or 3G must be done in binary, since other formats (XML, JSON) include the data format, and therefore unnecessarily consume bandwidth.\n\n\nDifferent protocols.\n Sensors provide different types of data and often via a different protocol (LoRa, MQTT, SigFox, etc.).\n\n\nCalibrating and vaidating data.\n Measurement require different types of calibration/validation. Each of them has to be implemented seperately.\n\n\n\n\nSolution\n\n\nA generic approach.\n A server that processes binary payloads in a dynamic and standardized way. ConCaVa, which stands for \nCo\nnvert, \nCa\nlibrate, and \nVa\nlidate, provides an HTTP API that processes a binary payload in three steps, before sending it to (cloud) storage. The dataflow is as follow:\n\n\n\n\n\n\n\n\n\nSensors gather measurements and send it to a connector (independent of the protocol).\n\n\nThe connector forwards the data in a standardized packet (HTTP request). Containing the device ID and payload in binary format.\n\n\nConCaVa then Converts, Calibrates, and Validates the data before forwarding it to the storage component.\n\n\nThe storage component stores the data (usually in the cloud).\n\n\n\n\nThe use of connectors allow sensor data, that is coming from various protocols (like TCP, LoRa, JSON, XML, MQTT, SigFox, SPUL), to be send to a central server in a standardized way. This central server, ConCaVa, will process the data in three steps:\n\n\n\n\n\n\nConvert: use dynamic metadata to parse the binary payload in to usable data.\n\n    This metadata is determined by given device ID.\n\n\n\n\n\n\nCalibrate: transform data to a desired format using sandboxed JavaScript function body.\n\n\n\n\nSimple example: e.g. convert Fahrenheit to Celcius (\nreturn (value - 32) / 1.8\n)\n\n\nAdvanced example: transform non-linear measurements to linear data\n\n\n\n\n\n\n\n\nValidate: correct invalid data (e.g. values that are out of sensor range).", 
+            "title": "Introduction"
+        }, 
+        {
+            "location": "/introduction/#introduction", 
+            "text": "This chapter introduces the problem ConCaVa is trying to solve.", 
+            "title": "Introduction"
+        }, 
+        {
+            "location": "/introduction/#problem", 
+            "text": "Efficiently processing sensor data is hard. As developers of IoT hardware we had the following problems:   Limited bandwidth.  Sending data over the internet or 3G must be done in binary, since other formats (XML, JSON) include the data format, and therefore unnecessarily consume bandwidth.  Different protocols.  Sensors provide different types of data and often via a different protocol (LoRa, MQTT, SigFox, etc.).  Calibrating and vaidating data.  Measurement require different types of calibration/validation. Each of them has to be implemented seperately.", 
+            "title": "Problem"
+        }, 
+        {
+            "location": "/introduction/#solution", 
+            "text": "A generic approach.  A server that processes binary payloads in a dynamic and standardized way. ConCaVa, which stands for  Co nvert,  Ca librate, and  Va lidate, provides an HTTP API that processes a binary payload in three steps, before sending it to (cloud) storage. The dataflow is as follow:     Sensors gather measurements and send it to a connector (independent of the protocol).  The connector forwards the data in a standardized packet (HTTP request). Containing the device ID and payload in binary format.  ConCaVa then Converts, Calibrates, and Validates the data before forwarding it to the storage component.  The storage component stores the data (usually in the cloud).   The use of connectors allow sensor data, that is coming from various protocols (like TCP, LoRa, JSON, XML, MQTT, SigFox, SPUL), to be send to a central server in a standardized way. This central server, ConCaVa, will process the data in three steps:    Convert: use dynamic metadata to parse the binary payload in to usable data. \n    This metadata is determined by given device ID.    Calibrate: transform data to a desired format using sandboxed JavaScript function body.   Simple example: e.g. convert Fahrenheit to Celcius ( return (value - 32) / 1.8 )  Advanced example: transform non-linear measurements to linear data     Validate: correct invalid data (e.g. values that are out of sensor range).", 
+            "title": "Solution"
+        }, 
+        {
+            "location": "/getting-started/", 
+            "text": "Getting started\n\n\nThis chapter helps you to get started with the SPUL connector.\n\n\nDemo\n\n\nA demo page will be coming soon. There you can fiddle with the sensor data, ConCaVa configuration, and metadata.\n\n\nQuick start\n\n\nThe quickest way to setup a SPUL connector is by using Docker.\n\nYou can have a \nConCaVa + SPUL connector\n setup running within minutes.\n\nFollow the \ninstallation page\n to get started right away.", 
+            "title": "Getting started"
+        }, 
+        {
+            "location": "/getting-started/#getting-started", 
+            "text": "This chapter helps you to get started with the SPUL connector.", 
+            "title": "Getting started"
+        }, 
+        {
+            "location": "/getting-started/#demo", 
+            "text": "A demo page will be coming soon. There you can fiddle with the sensor data, ConCaVa configuration, and metadata.", 
+            "title": "Demo"
+        }, 
+        {
+            "location": "/getting-started/#quick-start", 
+            "text": "The quickest way to setup a SPUL connector is by using Docker. \nYou can have a  ConCaVa + SPUL connector  setup running within minutes. \nFollow the  installation page  to get started right away.", 
+            "title": "Quick start"
+        }, 
+        {
+            "location": "/install/", 
+            "text": "Installation\n\n\nThe SPUL connector can be run as a Golang program or in a Docker container.\n\n\nMake sure \nConCaVa\n is setup aswell.\nSee \n.env.sample\n for the default configuration.\n\n\nGolang\n\n\ngit clone https://github.com/kukua/concava-spul-connector.git\ncd concava-spul-connector\ncp .env.sample .env\n# \n Edit .env\n\nsource .env\ngo run src/connector.go\n\n\n\n\nTested with Go v1.5.1.\n\n\nDocker\n\n\nFirst, \ninstall Docker\n. Then run:\n\n\ncurl https://raw.githubusercontent.com/kukua/concava-spul-connector/master/.env.sample \n .env\n# \n Edit .env\n\ndocker run -d -p 3333 -p 5555 --env-file .env --name spul_connector kukuadev/concava-spul-connector\n\n\n\n\nTested with Docker v1.8.", 
+            "title": "Install"
+        }, 
+        {
+            "location": "/install/#installation", 
+            "text": "The SPUL connector can be run as a Golang program or in a Docker container.  Make sure  ConCaVa  is setup aswell.\nSee  .env.sample  for the default configuration.", 
+            "title": "Installation"
+        }, 
+        {
+            "location": "/install/#golang", 
+            "text": "git clone https://github.com/kukua/concava-spul-connector.git\ncd concava-spul-connector\ncp .env.sample .env\n#   Edit .env\n\nsource .env\ngo run src/connector.go  Tested with Go v1.5.1.", 
+            "title": "Golang"
+        }, 
+        {
+            "location": "/install/#docker", 
+            "text": "First,  install Docker . Then run:  curl https://raw.githubusercontent.com/kukua/concava-spul-connector/master/.env.sample   .env\n#   Edit .env\n\ndocker run -d -p 3333 -p 5555 --env-file .env --name spul_connector kukuadev/concava-spul-connector  Tested with Docker v1.8.", 
+            "title": "Docker"
+        }, 
+        {
+            "location": "/test/", 
+            "text": "Testing\n\n\nFirst, add \nspul_connector\n to your hosts file. Pointing to either localhost (\n127.0.0.1\n) or the Docker container IP. Then run:\n\n\n./tools/run_test.sh tools/test_timestamp.go\n./tools/run_test.sh tools/test_spul.go", 
+            "title": "Test"
+        }, 
+        {
+            "location": "/test/#testing", 
+            "text": "First, add  spul_connector  to your hosts file. Pointing to either localhost ( 127.0.0.1 ) or the Docker container IP. Then run:  ./tools/run_test.sh tools/test_timestamp.go\n./tools/run_test.sh tools/test_spul.go", 
+            "title": "Testing"
+        }, 
+        {
+            "location": "/contribute/", 
+            "text": "Contributing\n\n\nYour help is highly appreciated! Please provide feedback by creating an issue in the Github repository.\n\n\nYou can also contact use via email at \ninfo@kukua.cc\n.", 
+            "title": "Contribute"
+        }, 
+        {
+            "location": "/contribute/#contributing", 
+            "text": "Your help is highly appreciated! Please provide feedback by creating an issue in the Github repository.  You can also contact use via email at  info@kukua.cc .", 
+            "title": "Contributing"
+        }
+    ]
+}
