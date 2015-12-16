@@ -19,28 +19,13 @@ const DEVICE_ID uint64 = 1234567890
 
 var HEADER_SIZE, _ = strconv.ParseInt(os.Getenv("HEADER_SIZE"), 10, 64)
 
-const NUM_BLOCKS = 4
-const BLOCK_SIZE = 8
+const MAX_NUM_BLOCKS = 4
+const MAX_BLOCK_SIZE = 8
+
+const MAX_FRAMES = 5
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-
-	sendBuffer := make([]byte, HEADER_SIZE+BLOCK_SIZE*NUM_BLOCKS)
-
-	if BIG_ENDIAN {
-		binary.BigEndian.PutUint64(sendBuffer, DEVICE_ID)
-	} else {
-		binary.LittleEndian.PutUint64(sendBuffer, DEVICE_ID)
-	}
-
-	sendBuffer[8] = uint8(NUM_BLOCKS)
-	sendBuffer[9] = uint8(BLOCK_SIZE)
-	sendBuffer[10] = 0
-	sendBuffer[11] = 0
-
-	for i := int64(0); i < (BLOCK_SIZE * NUM_BLOCKS); i++ {
-		sendBuffer[i+HEADER_SIZE] = uint8(rand.Intn(255))
-	}
 
 	conn, err := net.Dial("tcp", SPUL_URL+":"+SPUL_PORT)
 	if err != nil {
@@ -48,5 +33,29 @@ func main() {
 		return
 	}
 	defer conn.Close()
-	conn.Write(sendBuffer)
+	
+	iterations := int64(rand.Intn(MAX_FRAMES) + 1);
+	
+	for i := int64(0); i < iterations; i++ {
+		numblocks := int64(rand.Intn(MAX_NUM_BLOCKS) + 1);
+		blockSize := int64(rand.Intn(MAX_BLOCK_SIZE) + 1);
+	
+		sendBuffer := make([]byte, HEADER_SIZE+numblocks*blockSize)
+
+		if BIG_ENDIAN {
+			binary.BigEndian.PutUint64(sendBuffer, DEVICE_ID)
+		} else {
+			binary.LittleEndian.PutUint64(sendBuffer, DEVICE_ID)
+		}
+
+		sendBuffer[8] = uint8(numblocks)
+		sendBuffer[9] = uint8(blockSize)
+		sendBuffer[10] = 0
+		sendBuffer[11] = 0
+	
+		for j := int64(0); j < (blockSize * numblocks); j++ {
+			sendBuffer[j+HEADER_SIZE] = uint8(rand.Intn(255))
+		}
+		conn.Write(sendBuffer)
+	}
 }
