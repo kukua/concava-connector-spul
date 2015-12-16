@@ -100,62 +100,61 @@ func setupSPULListener(done <-chan int) {
 func handleSPULRequest(conn net.Conn) {
 	defer conn.Close()
 	header := make([]byte, HEADER_SIZE)
-	payload := make([]byte, MAX_FRAME_SIZE-HEADER_SIZE)
+	
+	frameCount := 0
+	
+	for { 
+		headerSize, err := conn.Read(header)
+		if err != nil {
+			if (frameCount == 0) {
+				fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL header read error: " + err.Error())
+				spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL header read error: " + err.Error() + "\r\n")
+			}
+			return
+		} else if int64(headerSize) != HEADER_SIZE {
+			fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL header size error: " + err.Error())
+			spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL header size error: " + err.Error() + "\r\n")
+			return
+		}
+		
+		frameCount++
+		var numBlocks int = int(header[8])
+		var blockSize int = int(header[9])
+		var payloadSize int = numBlocks * blockSize;
 
-	headerSize, err := conn.Read(header)
-	if err != nil {
-		fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL header read error: " + err.Error())
-		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL header read error: " + err.Error() + "\r\n")
-		return
-	} else if int64(headerSize) != HEADER_SIZE {
-		fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL header size error: " + err.Error())
-		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL header size error: " + err.Error() + "\r\n")
-		return
-	}
-
-	payloadSize, err := conn.Read(payload)
-	if err != nil {
-		fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL payload read error: " + err.Error())
-		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL payload read error" + err.Error() + "\r\n")
-		return
-	}
-
-	var numBlocks int = int(header[8])
-	var blockSize int = int(header[9])
-
-	if (blockSize == 0) && (numBlocks == 1) {
-		blockSize = payloadSize
-	}
-
-	if payloadSize != (numBlocks * blockSize) {
-		fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL payload size mismatch")
-		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL payload size mismatch\r\n")
-		return
-	}
-
-	var deviceID uint64
-
-	if BIG_ENDIAN {
-		deviceID = binary.BigEndian.Uint64(header)
-	} else {
-		deviceID = binary.LittleEndian.Uint64(header)
-	}
-
-	fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 10) + ", " + strconv.FormatUint(uint64(numBlocks), 10) + ", " + strconv.FormatUint(uint64(blockSize), 10))
-	spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 10) + ", " + strconv.FormatUint(uint64(numBlocks), 10) + ", " + strconv.FormatUint(uint64(blockSize), 10) + "\r\n")
-
-	for i := 0; i < numBlocks; i++ {
-		sendBuffer := make([]byte, blockSize)
-
-		for j := 0; j < blockSize; j++ {
-			sendBuffer[j] = payload[i*int(blockSize)+j]
+		payload := make([]byte, payloadSize)
+		
+		_ , err = conn.Read(payload)
+		if err != nil {
+			fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL payload read error: " + err.Error())
+			spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL payload read error" + err.Error() + "\r\n")
+			return
 		}
 
-		hexBuffer := hex.EncodeToString(sendBuffer)
-		fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 10) + ", buffer: " + hexBuffer)
-		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 10) + ", buffer: " + hexBuffer + "\r\n")
+		var deviceID uint64
 
-		go sendConcava(deviceID, sendBuffer, conn)
+		if BIG_ENDIAN {
+			deviceID = binary.BigEndian.Uint64(header)
+		} else {
+			deviceID = binary.LittleEndian.Uint64(header)
+		}
+
+		fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", Frame: " + strconv.FormatUint(uint64(frameCount), 10) + ", " + strconv.FormatUint(deviceID, 10) + ", " + strconv.FormatUint(uint64(numBlocks), 10) + ", " + strconv.FormatUint(uint64(blockSize), 10))
+		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 10) + ", " + strconv.FormatUint(uint64(numBlocks), 10) + ", " + strconv.FormatUint(uint64(blockSize), 10) + "\r\n")
+
+		for i := 0; i < numBlocks; i++ {
+			sendBuffer := make([]byte, blockSize)
+
+			for j := 0; j < blockSize; j++ {
+				sendBuffer[j] = payload[i*int(blockSize)+j]
+			}
+
+			hexBuffer := hex.EncodeToString(sendBuffer)
+			fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 10) + ", buffer: " + hexBuffer)
+			spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 10) + ", buffer: " + hexBuffer + "\r\n")
+
+			go sendConcava(deviceID, sendBuffer, conn)
+		}
 	}
 }
 
