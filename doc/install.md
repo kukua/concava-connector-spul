@@ -2,7 +2,7 @@
 
 The SPUL connector can be run as a Golang program or in a Docker container.
 
-Make sure [ConCaVa](https://github.com/kukua/concava) is setup aswell.
+Make sure [ConCaVa](https://github.com/kukua/concava) is setup as well.
 See [`.env.sample`](https://github.com/kukua/concava-spul-connector/tree/master/.env.sample) for the default configuration.
 
 ## Golang

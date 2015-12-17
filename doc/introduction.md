@@ -18,7 +18,7 @@ The header block contains the following bytes:
 - 1 byte for the block length
 - 2 bytes for the network (signal) quality
 
-A byte block length value of `0` means the remaining bytes will be send as single data record (TCP packet size minus header size). In this case the number of blocks must be `0` aswell. This results in one block consisting of `TCP frame size - header size = 512 - 12 = 500 bytes`.
+A byte block length value of `0` means the remaining bytes will be send as single data record (TCP packet size minus header size). In this case the number of blocks must be `0` as well. This results in one block consisting of `TCP frame size - header size = 512 - 12 = 500 bytes`.
 
 The TCP socket handler will receive a TCP frame, parse it into device ID & blocks, and forward it to ConCaVa. The device ID will passed along in the URL as a lowercase 16 character hexidecimal string (e.g. `http://concava.example/v1/sensorData/aabbccddeeff1234`). Per block a [PUT request](http://kukua.github.io/concava/latest/api/) will be made to ConCaVa with the block's data as binary body (content type `application/octet-stream`). Optionally an `Authorization` header is added for authentication in ConCaVa (e.g. `Authorization: Token <token>`).
 

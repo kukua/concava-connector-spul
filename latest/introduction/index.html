@@ -150,7 +150,7 @@
 <li>1 byte for the block length</li>
 <li>2 bytes for the network (signal) quality</li>
 </ul>
-<p>A byte block length value of <code>0</code> means the remaining bytes will be send as single data record (TCP packet size minus header size). In this case the number of blocks must be <code>0</code> aswell. This results in one block consisting of <code>TCP frame size - header size = 512 - 12 = 500 bytes</code>.</p>
+<p>A byte block length value of <code>0</code> means the remaining bytes will be send as single data record (TCP packet size minus header size). In this case the number of blocks must be <code>0</code> as well. This results in one block consisting of <code>TCP frame size - header size = 512 - 12 = 500 bytes</code>.</p>
 <p>The TCP socket handler will receive a TCP frame, parse it into device ID &amp; blocks, and forward it to ConCaVa. The device ID will passed along in the URL as a lowercase 16 character hexidecimal string (e.g. <code>http://concava.example/v1/sensorData/aabbccddeeff1234</code>). Per block a <a href="http://kukua.github.io/concava/latest/api/">PUT request</a> will be made to ConCaVa with the block's data as binary body (content type <code>application/octet-stream</code>). Optionally an <code>Authorization</code> header is added for authentication in ConCaVa (e.g. <code>Authorization: Token &lt;token&gt;</code>).</p>
 <h2 id="data-usage">Data usage</h2>
 <p>For the Kukua weather stations a data record will be less than 20 bytes. A SPUL frame can hold at least 25 weather records. This allows us to send 20 records (3 minute samples) each hour in a single SPUL frame.</p>
