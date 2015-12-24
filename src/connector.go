@@ -139,8 +139,8 @@ func handleSPULRequest(conn net.Conn) {
 			deviceID = binary.LittleEndian.Uint64(header)
 		}
 
-		fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", Frame: " + strconv.FormatUint(uint64(frameCount), 10) + ", " + strconv.FormatUint(deviceID, 10) + ", " + strconv.FormatUint(uint64(numBlocks), 10) + ", " + strconv.FormatUint(uint64(blockSize), 10))
-		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 10) + ", " + strconv.FormatUint(uint64(numBlocks), 10) + ", " + strconv.FormatUint(uint64(blockSize), 10) + "\r\n")
+		fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", Frame: " + strconv.FormatUint(uint64(frameCount), 10) + ", " + strconv.FormatUint(deviceID, 16) + ", " + strconv.FormatUint(uint64(numBlocks), 10) + ", " + strconv.FormatUint(uint64(blockSize), 10))
+		spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 16) + ", " + strconv.FormatUint(uint64(numBlocks), 10) + ", " + strconv.FormatUint(uint64(blockSize), 10) + "\r\n")
 
 		for i := 0; i < numBlocks; i++ {
 			sendBuffer := make([]byte, blockSize)
@@ -150,8 +150,8 @@ func handleSPULRequest(conn net.Conn) {
 			}
 
 			hexBuffer := hex.EncodeToString(sendBuffer)
-			fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 10) + ", buffer: " + hexBuffer)
-			spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 10) + ", buffer: " + hexBuffer + "\r\n")
+			fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 16) + ", buffer: " + hexBuffer)
+			spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + strconv.FormatUint(deviceID, 16) + ", buffer: " + hexBuffer + "\r\n")
 
 			go sendConcava(deviceID, sendBuffer, conn)
 		}
