@@ -10,7 +10,7 @@ The project documentation is hosted on [http://kukua.github.io/concava-spul-conn
 
 The SPUL connector can be run as a Golang program or in a Docker container.
 
-Make sure [ConCaVa](https://github.com/kukua/concava) is setup aswell.
+Make sure [ConCaVa](https://github.com/kukua/concava) is setup as well.
 See [`.env.sample`](https://github.com/kukua/concava-spul-connector/tree/master/.env.sample) for the default configuration.
 
 ### Golang
@@ -42,11 +42,12 @@ Tested with Docker v1.8.
 
 ## Test
 
-First, add `spul_connector` to your hosts file. Pointing to either localhost (`127.0.0.1`) or the Docker container IP. Then run:
+Make sure a SPUL container is running with the name 'spul_connector'. Then run:
 
 ```js
 ./tools/run_test.sh tools/test_timestamp.go
 ./tools/run_test.sh tools/test_spul.go
+docker logs spul_connector
 ```
 
 ## Contribute
