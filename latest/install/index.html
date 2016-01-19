@@ -137,10 +137,10 @@
                 <h1 id="installation">Installation</h1>
 <p>The SPUL connector can be run as a Golang program or in a Docker container.</p>
 <p>Make sure <a href="https://github.com/kukua/concava">ConCaVa</a> is setup as well.
-See <a href="https://github.com/kukua/concava-spul-connector/tree/master/.env.sample"><code>.env.sample</code></a> for the default configuration.</p>
+See <a href="https://github.com/kukua/concava-connector-spul/tree/master/.env.sample"><code>.env.sample</code></a> for the default configuration.</p>
 <h2 id="golang">Golang</h2>
-<pre><code class="bash">git clone https://github.com/kukua/concava-spul-connector.git
-cd concava-spul-connector
+<pre><code class="bash">git clone https://github.com/kukua/concava-connector-spul.git
+cd concava-connector-spul
 cp .env.sample .env
 # &gt; Edit .env
 
@@ -151,10 +151,10 @@ go run src/connector.go
 <p>Tested with Go v1.5.1.</p>
 <h2 id="docker">Docker</h2>
 <p>First, <a href="http://docs.docker.com/engine/installation/">install Docker</a>. Then run:</p>
-<pre><code class="bash">curl https://raw.githubusercontent.com/kukua/concava-spul-connector/master/.env.sample &gt; .env
+<pre><code class="bash">curl https://raw.githubusercontent.com/kukua/concava-connector-spul/master/.env.sample &gt; .env
 # &gt; Edit .env
 
-docker run -d -p 3333 -p 5555 --env-file .env --name spul_connector kukuadev/concava-spul-connector
+docker run -d -p 3333 -p 5555 --env-file .env --name spul_connector kukuadev/concava-connector-spul
 </code></pre>
 
 <p>Tested with Docker v1.8.</p>

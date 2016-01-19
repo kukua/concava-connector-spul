@@ -1,93 +1,93 @@
 {
     "docs": [
         {
-            "location": "/", 
-            "text": "SPUL Connector\n\n\nConCaVa Connector for the SPUL protocol.\n\n\nFor contributing, providing feedback, or support go to the \nGithub repository\n.\n\nA demo page is \ncoming soon\n.", 
+            "location": "/",
+            "text": "SPUL Connector\n\n\nConCaVa Connector for the SPUL protocol.\n\n\nFor contributing, providing feedback, or support go to the \nGithub repository\n.\n\nA demo page is \ncoming soon\n.",
             "title": "Home"
-        }, 
+        },
         {
-            "location": "/#spul-connector", 
-            "text": "ConCaVa Connector for the SPUL protocol.  For contributing, providing feedback, or support go to the  Github repository . \nA demo page is  coming soon .", 
+            "location": "/#spul-connector",
+            "text": "ConCaVa Connector for the SPUL protocol.  For contributing, providing feedback, or support go to the  Github repository . \nA demo page is  coming soon .",
             "title": "SPUL Connector"
-        }, 
+        },
         {
-            "location": "/introduction/", 
-            "text": "Introduction\n\n\nSPUL stands for \nSensor Protocol Ultra Light\n and is developed by \nSodaq\n. Spul is also a Dutch synonym for 'things'.\n\n\nProtocol for 2G/3G data connection\n\n\nSPUL is built on top of the TCP protocol and uses TCP sockets for data communication. A SPUL TCP socket server will listen on incoming data packets, process these packets and forward the packets to \nConCaVa\n. The server will listen on a configurable TCP port (\n5555\n by default). To avoid fragmenting of TCP frames the maximum size of the data packets is limited to 512 bytes.\n\n\nThe format of the TCP packet is defined as follows:\n\n\n\n\n12 byte header block\n\n\nOne or more data blocks\n\n\n\n\nThe header block contains the following bytes:\n\n\n\n\n8 byte device ID\n\n\n1 byte for the number of blocks\n\n\n1 byte for the block length\n\n\n2 bytes for the network (signal) quality\n\n\n\n\nA byte block length value of \n0\n means the remaining bytes will be send as single data record (TCP packet size minus header size). In this case the number of blocks must be \n0\n as well. This results in one block consisting of \nTCP frame size - header size = 512 - 12 = 500 bytes\n.\n\n\nThe TCP socket handler will receive a TCP frame, parse it into device ID \n blocks, and forward it to ConCaVa. The device ID will passed along in the URL as a lowercase 16 character hexidecimal string (e.g. \nhttp://concava.example/v1/sensorData/aabbccddeeff1234\n). Per block a \nPUT request\n will be made to ConCaVa with the block's data as binary body (content type \napplication/octet-stream\n). Optionally an \nAuthorization\n header is added for authentication in ConCaVa (e.g. \nAuthorization: Token \ntoken\n).\n\n\nData usage\n\n\nFor the Kukua weather stations a data record will be less than 20 bytes. A SPUL frame can hold at least 25 weather records. This allows us to send 20 records (3 minute samples) each hour in a single SPUL frame.\n\n\nMobile Data Operators often have a mimimum session of 1000 bytes. With the implementation we will remain well within this limit. With hourly uploads the monthly data charges will be: \n24 * 1000 bytes * 31 = 727 kilobytes\n which means a 1 MB/month bundle will be sufficient.", 
+            "location": "/introduction/",
+            "text": "Introduction\n\n\nSPUL stands for \nSensor Protocol Ultra Light\n and is developed by \nSodaq\n. Spul is also a Dutch synonym for 'things'.\n\n\nProtocol for 2G/3G data connection\n\n\nSPUL is built on top of the TCP protocol and uses TCP sockets for data communication. A SPUL TCP socket server will listen on incoming data packets, process these packets and forward the packets to \nConCaVa\n. The server will listen on a configurable TCP port (\n5555\n by default). To avoid fragmenting of TCP frames the maximum size of the data packets is limited to 512 bytes.\n\n\nThe format of the TCP packet is defined as follows:\n\n\n\n\n12 byte header block\n\n\nOne or more data blocks\n\n\n\n\nThe header block contains the following bytes:\n\n\n\n\n8 byte device ID\n\n\n1 byte for the number of blocks\n\n\n1 byte for the block length\n\n\n2 bytes for the network (signal) quality\n\n\n\n\nA byte block length value of \n0\n means the remaining bytes will be send as single data record (TCP packet size minus header size). In this case the number of blocks must be \n0\n as well. This results in one block consisting of \nTCP frame size - header size = 512 - 12 = 500 bytes\n.\n\n\nThe TCP socket handler will receive a TCP frame, parse it into device ID \n blocks, and forward it to ConCaVa. The device ID will passed along in the URL as a lowercase 16 character hexidecimal string (e.g. \nhttp://concava.example/v1/sensorData/aabbccddeeff1234\n). Per block a \nPUT request\n will be made to ConCaVa with the block's data as binary body (content type \napplication/octet-stream\n). Optionally an \nAuthorization\n header is added for authentication in ConCaVa (e.g. \nAuthorization: Token \ntoken\n).\n\n\nData usage\n\n\nFor the Kukua weather stations a data record will be less than 20 bytes. A SPUL frame can hold at least 25 weather records. This allows us to send 20 records (3 minute samples) each hour in a single SPUL frame.\n\n\nMobile Data Operators often have a mimimum session of 1000 bytes. With the implementation we will remain well within this limit. With hourly uploads the monthly data charges will be: \n24 * 1000 bytes * 31 = 727 kilobytes\n which means a 1 MB/month bundle will be sufficient.",
             "title": "Introduction"
-        }, 
+        },
         {
-            "location": "/introduction/#introduction", 
-            "text": "SPUL stands for  Sensor Protocol Ultra Light  and is developed by  Sodaq . Spul is also a Dutch synonym for 'things'.", 
+            "location": "/introduction/#introduction",
+            "text": "SPUL stands for  Sensor Protocol Ultra Light  and is developed by  Sodaq . Spul is also a Dutch synonym for 'things'.",
             "title": "Introduction"
-        }, 
+        },
         {
-            "location": "/introduction/#protocol-for-2g3g-data-connection", 
-            "text": "SPUL is built on top of the TCP protocol and uses TCP sockets for data communication. A SPUL TCP socket server will listen on incoming data packets, process these packets and forward the packets to  ConCaVa . The server will listen on a configurable TCP port ( 5555  by default). To avoid fragmenting of TCP frames the maximum size of the data packets is limited to 512 bytes.  The format of the TCP packet is defined as follows:   12 byte header block  One or more data blocks   The header block contains the following bytes:   8 byte device ID  1 byte for the number of blocks  1 byte for the block length  2 bytes for the network (signal) quality   A byte block length value of  0  means the remaining bytes will be send as single data record (TCP packet size minus header size). In this case the number of blocks must be  0  as well. This results in one block consisting of  TCP frame size - header size = 512 - 12 = 500 bytes .  The TCP socket handler will receive a TCP frame, parse it into device ID   blocks, and forward it to ConCaVa. The device ID will passed along in the URL as a lowercase 16 character hexidecimal string (e.g.  http://concava.example/v1/sensorData/aabbccddeeff1234 ). Per block a  PUT request  will be made to ConCaVa with the block's data as binary body (content type  application/octet-stream ). Optionally an  Authorization  header is added for authentication in ConCaVa (e.g.  Authorization: Token  token ).", 
+            "location": "/introduction/#protocol-for-2g3g-data-connection",
+            "text": "SPUL is built on top of the TCP protocol and uses TCP sockets for data communication. A SPUL TCP socket server will listen on incoming data packets, process these packets and forward the packets to  ConCaVa . The server will listen on a configurable TCP port ( 5555  by default). To avoid fragmenting of TCP frames the maximum size of the data packets is limited to 512 bytes.  The format of the TCP packet is defined as follows:   12 byte header block  One or more data blocks   The header block contains the following bytes:   8 byte device ID  1 byte for the number of blocks  1 byte for the block length  2 bytes for the network (signal) quality   A byte block length value of  0  means the remaining bytes will be send as single data record (TCP packet size minus header size). In this case the number of blocks must be  0  as well. This results in one block consisting of  TCP frame size - header size = 512 - 12 = 500 bytes .  The TCP socket handler will receive a TCP frame, parse it into device ID   blocks, and forward it to ConCaVa. The device ID will passed along in the URL as a lowercase 16 character hexidecimal string (e.g.  http://concava.example/v1/sensorData/aabbccddeeff1234 ). Per block a  PUT request  will be made to ConCaVa with the block's data as binary body (content type  application/octet-stream ). Optionally an  Authorization  header is added for authentication in ConCaVa (e.g.  Authorization: Token  token ).",
             "title": "Protocol for 2G/3G data connection"
-        }, 
+        },
         {
-            "location": "/introduction/#data-usage", 
-            "text": "For the Kukua weather stations a data record will be less than 20 bytes. A SPUL frame can hold at least 25 weather records. This allows us to send 20 records (3 minute samples) each hour in a single SPUL frame.  Mobile Data Operators often have a mimimum session of 1000 bytes. With the implementation we will remain well within this limit. With hourly uploads the monthly data charges will be:  24 * 1000 bytes * 31 = 727 kilobytes  which means a 1 MB/month bundle will be sufficient.", 
+            "location": "/introduction/#data-usage",
+            "text": "For the Kukua weather stations a data record will be less than 20 bytes. A SPUL frame can hold at least 25 weather records. This allows us to send 20 records (3 minute samples) each hour in a single SPUL frame.  Mobile Data Operators often have a mimimum session of 1000 bytes. With the implementation we will remain well within this limit. With hourly uploads the monthly data charges will be:  24 * 1000 bytes * 31 = 727 kilobytes  which means a 1 MB/month bundle will be sufficient.",
             "title": "Data usage"
-        }, 
+        },
         {
-            "location": "/getting-started/", 
-            "text": "Getting started\n\n\nThis chapter helps you to get started with the SPUL connector.\n\n\nDemo\n\n\nA demo page will be coming soon. There you can fiddle with the sensor data, ConCaVa configuration, and metadata.\n\n\nQuick start\n\n\nThe quickest way to setup a SPUL connector is by using Docker.\n\nYou can have a \nConCaVa + SPUL connector\n setup running within minutes.\n\nFollow the \ninstallation page\n to get started right away.", 
+            "location": "/getting-started/",
+            "text": "Getting started\n\n\nThis chapter helps you to get started with the SPUL connector.\n\n\nDemo\n\n\nA demo page will be coming soon. There you can fiddle with the sensor data, ConCaVa configuration, and metadata.\n\n\nQuick start\n\n\nThe quickest way to setup a SPUL connector is by using Docker.\n\nYou can have a \nConCaVa + SPUL connector\n setup running within minutes.\n\nFollow the \ninstallation page\n to get started right away.",
             "title": "Getting started"
-        }, 
+        },
         {
-            "location": "/getting-started/#getting-started", 
-            "text": "This chapter helps you to get started with the SPUL connector.", 
+            "location": "/getting-started/#getting-started",
+            "text": "This chapter helps you to get started with the SPUL connector.",
             "title": "Getting started"
-        }, 
+        },
         {
-            "location": "/getting-started/#demo", 
-            "text": "A demo page will be coming soon. There you can fiddle with the sensor data, ConCaVa configuration, and metadata.", 
+            "location": "/getting-started/#demo",
+            "text": "A demo page will be coming soon. There you can fiddle with the sensor data, ConCaVa configuration, and metadata.",
             "title": "Demo"
-        }, 
+        },
         {
-            "location": "/getting-started/#quick-start", 
-            "text": "The quickest way to setup a SPUL connector is by using Docker. \nYou can have a  ConCaVa + SPUL connector  setup running within minutes. \nFollow the  installation page  to get started right away.", 
+            "location": "/getting-started/#quick-start",
+            "text": "The quickest way to setup a SPUL connector is by using Docker. \nYou can have a  ConCaVa + SPUL connector  setup running within minutes. \nFollow the  installation page  to get started right away.",
             "title": "Quick start"
-        }, 
+        },
         {
-            "location": "/install/", 
-            "text": "Installation\n\n\nThe SPUL connector can be run as a Golang program or in a Docker container.\n\n\nMake sure \nConCaVa\n is setup as well.\nSee \n.env.sample\n for the default configuration.\n\n\nGolang\n\n\ngit clone https://github.com/kukua/concava-spul-connector.git\ncd concava-spul-connector\ncp .env.sample .env\n# \n Edit .env\n\nsource .env\ngo run src/connector.go\n\n\n\n\nTested with Go v1.5.1.\n\n\nDocker\n\n\nFirst, \ninstall Docker\n. Then run:\n\n\ncurl https://raw.githubusercontent.com/kukua/concava-spul-connector/master/.env.sample \n .env\n# \n Edit .env\n\ndocker run -d -p 3333 -p 5555 --env-file .env --name spul_connector kukuadev/concava-spul-connector\n\n\n\n\nTested with Docker v1.8.", 
+            "location": "/install/",
+            "text": "Installation\n\n\nThe SPUL connector can be run as a Golang program or in a Docker container.\n\n\nMake sure \nConCaVa\n is setup as well.\nSee \n.env.sample\n for the default configuration.\n\n\nGolang\n\n\ngit clone https://github.com/kukua/concava-connector-spul.git\ncd concava-connector-spul\ncp .env.sample .env\n# \n Edit .env\n\nsource .env\ngo run src/connector.go\n\n\n\n\nTested with Go v1.5.1.\n\n\nDocker\n\n\nFirst, \ninstall Docker\n. Then run:\n\n\ncurl https://raw.githubusercontent.com/kukua/concava-connector-spul/master/.env.sample \n .env\n# \n Edit .env\n\ndocker run -d -p 3333 -p 5555 --env-file .env --name spul_connector kukuadev/concava-connector-spul\n\n\n\n\nTested with Docker v1.8.",
             "title": "Install"
-        }, 
+        },
         {
-            "location": "/install/#installation", 
-            "text": "The SPUL connector can be run as a Golang program or in a Docker container.  Make sure  ConCaVa  is setup as well.\nSee  .env.sample  for the default configuration.", 
+            "location": "/install/#installation",
+            "text": "The SPUL connector can be run as a Golang program or in a Docker container.  Make sure  ConCaVa  is setup as well.\nSee  .env.sample  for the default configuration.",
             "title": "Installation"
-        }, 
+        },
         {
-            "location": "/install/#golang", 
-            "text": "git clone https://github.com/kukua/concava-spul-connector.git\ncd concava-spul-connector\ncp .env.sample .env\n#   Edit .env\n\nsource .env\ngo run src/connector.go  Tested with Go v1.5.1.", 
+            "location": "/install/#golang",
+            "text": "git clone https://github.com/kukua/concava-connector-spul.git\ncd concava-connector-spul\ncp .env.sample .env\n#   Edit .env\n\nsource .env\ngo run src/connector.go  Tested with Go v1.5.1.",
             "title": "Golang"
-        }, 
+        },
         {
-            "location": "/install/#docker", 
-            "text": "First,  install Docker . Then run:  curl https://raw.githubusercontent.com/kukua/concava-spul-connector/master/.env.sample   .env\n#   Edit .env\n\ndocker run -d -p 3333 -p 5555 --env-file .env --name spul_connector kukuadev/concava-spul-connector  Tested with Docker v1.8.", 
+            "location": "/install/#docker",
+            "text": "First,  install Docker . Then run:  curl https://raw.githubusercontent.com/kukua/concava-connector-spul/master/.env.sample   .env\n#   Edit .env\n\ndocker run -d -p 3333 -p 5555 --env-file .env --name spul_connector kukuadev/concava-connector-spul  Tested with Docker v1.8.",
             "title": "Docker"
-        }, 
+        },
         {
-            "location": "/test/", 
-            "text": "Testing\n\n\nMake sure a SPUL container is running with the name 'spul_connector'. Then run:\n\n\n./tools/run_test.sh tools/test_timestamp.go\n./tools/run_test.sh tools/test_spul.go\ndocker logs spul_connector", 
+            "location": "/test/",
+            "text": "Testing\n\n\nMake sure a SPUL container is running with the name 'spul_connector'. Then run:\n\n\n./tools/run_test.sh tools/test_timestamp.go\n./tools/run_test.sh tools/test_spul.go\ndocker logs spul_connector",
             "title": "Test"
-        }, 
+        },
         {
-            "location": "/test/#testing", 
-            "text": "Make sure a SPUL container is running with the name 'spul_connector'. Then run:  ./tools/run_test.sh tools/test_timestamp.go\n./tools/run_test.sh tools/test_spul.go\ndocker logs spul_connector", 
+            "location": "/test/#testing",
+            "text": "Make sure a SPUL container is running with the name 'spul_connector'. Then run:  ./tools/run_test.sh tools/test_timestamp.go\n./tools/run_test.sh tools/test_spul.go\ndocker logs spul_connector",
             "title": "Testing"
-        }, 
+        },
         {
-            "location": "/contribute/", 
-            "text": "Contributing\n\n\nYour help is highly appreciated! Please provide feedback by creating an issue in the Github repository.\n\n\nYou can also contact use via email at \ninfo@kukua.cc\n.", 
+            "location": "/contribute/",
+            "text": "Contributing\n\n\nYour help is highly appreciated! Please provide feedback by creating an issue in the Github repository.\n\n\nYou can also contact use via email at \ninfo@kukua.cc\n.",
             "title": "Contribute"
-        }, 
+        },
         {
-            "location": "/contribute/#contributing", 
-            "text": "Your help is highly appreciated! Please provide feedback by creating an issue in the Github repository.  You can also contact use via email at  info@kukua.cc .", 
+            "location": "/contribute/#contributing",
+            "text": "Your help is highly appreciated! Please provide feedback by creating an issue in the Github repository.  You can also contact use via email at  info@kukua.cc .",
             "title": "Contributing"
         }
     ]
