@@ -100,10 +100,10 @@ func setupSPULListener(done <-chan int) {
 func handleSPULRequest(conn net.Conn) {
 	defer conn.Close()
 	header := make([]byte, HEADER_SIZE)
-	
+
 	frameCount := 0
-	
-	for { 
+
+	for {
 		headerSize, err := conn.Read(header)
 		if err != nil {
 			if (frameCount == 0) {
@@ -116,14 +116,14 @@ func handleSPULRequest(conn net.Conn) {
 			spulLog.WriteString(strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL header size error: " + err.Error() + "\r\n")
 			return
 		}
-		
+
 		frameCount++
 		var numBlocks int = int(header[8])
 		var blockSize int = int(header[9])
 		var payloadSize int = numBlocks * blockSize;
 
 		payload := make([]byte, payloadSize)
-		
+
 		_ , err = conn.Read(payload)
 		if err != nil {
 			fmt.Println(SPUL_PORT + ": " + strconv.FormatInt(time.Now().Unix(), 10) + ", " + conn.RemoteAddr().String() + ", " + "SPUL payload read error: " + err.Error())

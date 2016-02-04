@@ -1,6 +1,6 @@
 # SPUL Connector
 
-> ConCaVa Connector for the SPUL protocol.
+> ConCaVa connector for the SPUL protocol.
 
 ## Documentation
 
