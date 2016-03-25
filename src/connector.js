@@ -45,15 +45,20 @@ var payloadServer = net.createServer((socket) => {
 
 		let client = mqtt.connect('mqtt://' + mqttHost, {
 			clientId: deviceId,
-			password: authToken
+			password: authToken,
+			connectTimeout: 3000, // ms
 		})
-		// TODO(mauvm): Handle error/timeout
+		client.on('error', (err) => {
+			log('%d: %d %s:%d %s ERROR buffer: %s err: %s', payloadPort, timestamp,
+				socket.remoteAddress, socket.remotePort, deviceId,
+				buf.toString('hex'), err)
+		})
 		client.on('connect', () => {
 			for (let i = 0; i < numBlocks; i += 1) {
 				let start = headerSize + i * blockSize
 				let payload = buf.slice(start, start + blockSize)
 
-				log('%d: %d %s:%d %s buffer: %s', payloadPort, timestamp,
+				log('%d: %d %s:%d %s SEND buffer: %s', payloadPort, timestamp,
 					socket.remoteAddress, socket.remotePort, deviceId,
 					payload.toString('hex'))
 
