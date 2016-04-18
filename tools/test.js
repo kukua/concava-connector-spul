@@ -1,5 +1,8 @@
 import net from 'net'
 
+const host = process.env['SPUL_HOST'] || 'localhost'
+const timestampPort = process.env['SPUL_TS_PORT'] || 3333
+const spulPort = process.env['SPUL_PORT'] || 5555
 const bigEndian = process.env['BIG_ENDIAN']
 
 function rand (min, max) {
@@ -12,7 +15,7 @@ function testTimestamp (cb) {
 
 	var client = net.Socket()
 
-	client.connect(3333, '127.0.0.1', () => {
+	client.connect(timestampPort, host, () => {
 		console.log('Connected to timestamp server')
 	})
 
@@ -38,7 +41,7 @@ function testPayload (cb) {
 	for (let i = 0; i < frames; i += 1) {
 		let client = net.Socket()
 
-		client.connect(5555, '127.0.0.1', () => {
+		client.connect(spulPort, host, () => {
 			console.log('Connected to payload server')
 
 			let numBlocks = maxNumBlocks //rand(1, maxNumBlocks)
