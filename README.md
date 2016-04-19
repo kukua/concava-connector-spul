@@ -36,8 +36,9 @@ First, [install Docker](http://docs.docker.com/engine/installation/). Then run:
 curl https://raw.githubusercontent.com/kukua/concava-connector-spul/master/.env.sample > .env
 # > Edit .env
 
+touch $PWD/connector-spul.log
 docker run -d -p 3333:3333 -p 5555:5555 \
-	-v /var/logs/concava-spul-connector.log:/var/tmp/info.log
+	-v $PWD/connector-spul.log:/logs/info.log
 	--env-file .env --name spul_connector \
 	kukuadev/concava-connector-spul
 ```

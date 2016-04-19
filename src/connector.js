@@ -6,7 +6,7 @@ const log = bunyan.createLogger({
 	name: (process.env['LOG_NAME'] || 'concava-connector-spul'),
 	streams: [
 		{ level: 'error', stream: process.stdout },
-		{ level: 'info', path: '/var/tmp/info.log' }
+		{ level: 'info', path: '/logs/info.log' }
 	]
 })
 
@@ -26,7 +26,7 @@ var timestamps = net.createServer((socket) => {
 	log.info({
 		timestampPort, timestamp,
 		remoteAddress, remotePort
-	})
+	}, 'timestamp')
 
 	var buf = new Buffer(4)
 	buf[bigEndian ? 'writeUInt32BE' : 'writeUInt32LE'](timestamp)
@@ -49,7 +49,7 @@ var payloadServer = net.createServer((socket) => {
 			payloadPort, timestamp,
 			remoteAddress, remotePort,
 			deviceId, numBlocks, blockSize
-		})
+		}, 'data')
 
 		var client = mqtt.connect('mqtt://' + mqttHost, {
 			clientId: deviceId,
@@ -62,7 +62,7 @@ var payloadServer = net.createServer((socket) => {
 				remoteAddress, remotePort,
 				deviceId, err,
 				buffer: buf.toString('hex')
-			})
+			}, 'error')
 		})
 		client.on('connect', () => {
 			for (let i = 0; i < numBlocks; i += 1) {
@@ -74,7 +74,7 @@ var payloadServer = net.createServer((socket) => {
 					remoteAddress, remotePort,
 					deviceId,
 					payload: payload.toString('hex')
-				})
+				}, 'payload')
 
 				client.publish('data', payload)
 			}
