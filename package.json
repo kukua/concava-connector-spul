@@ -2,9 +2,10 @@
   "name": "concava-connector-spul",
   "version": "0.1.0",
   "description": "ConCaVa connector for the SPUL protocol.",
-  "main": "src/connector.js",
+  "main": "lib/connector.js",
   "scripts": {
-    "start": "babel-node src/connector.js",
+    "compile": "babel -d lib/ src/",
+    "start": "node lib/connector.js",
     "test": "babel-node tools/test.js"
   },
   "repository": {
