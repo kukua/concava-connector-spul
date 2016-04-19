@@ -2,6 +2,7 @@ import net from 'net'
 import bunyan from 'bunyan'
 import mqtt from 'mqtt'
 
+// Logger
 const log = bunyan.createLogger({
 	name: (process.env['LOG_NAME'] || 'concava-connector-spul'),
 	streams: [
@@ -10,6 +11,7 @@ const log = bunyan.createLogger({
 	]
 })
 
+// Configuration
 const bigEndian     = (process.env['BIG_ENDIAN'] !== 'false' && process.env['BIG_ENDIAN'] !== '0')
 const mqttHost      = (process.env['MQTT_HOST'] || 'unknown.host')
 const headerSize    = (1 * process.env['HEADER_SIZE'] || 12)
@@ -17,6 +19,11 @@ const maxFrameSize  = (1 * process.env['MAX_FRAME_SIZE'] || 500)
 const authToken     = (process.env['X_AUTH_TOKEN'] || 'unknown')
 const timestampPort = 3333
 const payloadPort   = 5555
+
+// Exception handling
+process.on('uncaughtException', (err) => {
+	log.error(err, 'error')
+})
 
 // Timestamp server
 var timestamps = net.createServer((socket) => {
