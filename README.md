@@ -56,7 +56,7 @@ docker logs spul_connector
 
 ## Contribute
 
-Your help and feedback are highly welcome!
+Your help and feedback are highly appreciated!
 
 ## License
 

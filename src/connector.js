@@ -5,14 +5,8 @@ import mqtt from 'mqtt'
 const log = bunyan.createLogger({
 	name: (process.env['LOG_NAME'] || 'concava-connector-spul'),
 	streams: [
-		{
-			level: 'error',
-			stream: process.stdout
-		},
-		{
-			level: 'info',
-			path: '/var/tmp/info.log'
-		}
+		{ level: 'error', stream: process.stdout },
+		{ level: 'info', path: '/var/tmp/info.log' }
 	]
 })
 
