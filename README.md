@@ -42,7 +42,7 @@ docker run -d -p 3333:3333 -p 5555:5555 \
 	kukuadev/concava-connector-spul
 ```
 
-Tested with Docker v1.8.
+Tested with Docker v1.9.
 
 ## Test
 
