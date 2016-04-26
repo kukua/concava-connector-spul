@@ -22,7 +22,7 @@ const payloadPort   = 5555
 
 // Exception handling
 process.on('uncaughtException', (err) => {
-	log.error({ type: 'uncaught-exception' }, err)
+	log.error({ type: 'uncaught-exception', stack: err.stack }, '' + err)
 })
 
 // Timestamp server
@@ -84,8 +84,9 @@ var payloadServer = net.createServer((socket) => {
 			log.error({
 				type: 'error', timestamp,
 				addr: remoteAddress + remotePort,
-				deviceId, buffer: buf.toString('hex')
-			}, err)
+				deviceId, buffer: buf.toString('hex'),
+				stack: err.stack
+			}, '' + err)
 		})
 		client.on('connect', () => {
 			for (let i = 0; i < blocks; i += 1) {
