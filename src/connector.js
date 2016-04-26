@@ -22,7 +22,7 @@ const payloadPort   = 5555
 
 // Exception handling
 process.on('uncaughtException', (err) => {
-	log.error(err, 'error')
+	log.error({ type: 'uncaught-exception' }, err)
 })
 
 // Timestamp server
@@ -31,13 +31,18 @@ var timestamps = net.createServer((socket) => {
 	var { remoteAddress, remotePort } = socket
 
 	log.info({
-		timestampPort, timestamp,
-		remoteAddress, remotePort
-	}, 'timestamp')
+		type: 'timestamp', timestamp,
+		addr: remoteAddress + remotePort
+	})
 
 	var buf = new Buffer(4)
 	buf[bigEndian ? 'writeUInt32BE' : 'writeUInt32LE'](timestamp)
 	socket.end(buf)
+}).on('close', () => {
+	log.info('Timestamp server closed')
+	process.exit(1)
+}).on('error', (err) => {
+	log.error('Timestamp error: ' + err)
 })
 
 timestamps.listen(timestampPort)
@@ -49,14 +54,14 @@ var payloadServer = net.createServer((socket) => {
 		var timestamp = Math.round(Date.now() / 1000)
 		var { remoteAddress, remotePort } = socket
 		var deviceId  = buf.toString('hex', 0, 8)
-		var numBlocks = buf.readInt8(8)
-		var blockSize = buf.readInt8(9)
+		var blocks = buf.readInt8(8)
+		var size = buf.readInt8(9)
 
 		log.info({
-			payloadPort, timestamp,
-			remoteAddress, remotePort,
-			deviceId, numBlocks, blockSize
-		}, 'data')
+			type: 'data', timestamp,
+			addr: remoteAddress + remotePort,
+			deviceId, blocks, size
+		})
 
 		// Close immediately, prevent ETIMEDOUT
 		socket.end()
@@ -68,23 +73,21 @@ var payloadServer = net.createServer((socket) => {
 		})
 		client.on('error', (err) => {
 			log.error({
-				payloadPort, timestamp,
-				remoteAddress, remotePort,
-				deviceId, err,
-				buffer: buf.toString('hex')
-			}, 'error')
+				type: 'error', timestamp,
+				addr: remoteAddress + remotePort,
+				deviceId, buffer: buf.toString('hex')
+			}, err)
 		})
 		client.on('connect', () => {
-			for (let i = 0; i < numBlocks; i += 1) {
-				let start = headerSize + i * blockSize
-				let payload = buf.slice(start, start + blockSize)
+			for (let i = 0; i < blocks; i += 1) {
+				let start = headerSize + i * size
+				let payload = buf.slice(start, start + size)
 
 				log.info({
-					payloadPort, timestamp,
-					remoteAddress, remotePort,
-					deviceId,
-					payload: payload.toString('hex')
-				}, 'payload')
+					type: 'payload', timestamp,
+					addr: remoteAddress + remotePort,
+					deviceId
+				}, payload.toString('hex'))
 
 				client.publish('data', payload)
 			}
@@ -92,6 +95,11 @@ var payloadServer = net.createServer((socket) => {
 			client.end()
 		})
 	})
+}).on('close', () => {
+	log.info('Payload server closed')
+	process.exit(1)
+}).on('error', (err) => {
+	log.error('Payload error: ' + err)
 })
 
 payloadServer.listen(payloadPort)
