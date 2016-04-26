@@ -58,6 +58,9 @@ var payloadServer = net.createServer((socket) => {
 			deviceId, numBlocks, blockSize
 		}, 'data')
 
+		// Close immediately, prevent ETIMEDOUT
+		socket.end()
+
 		var client = mqtt.connect('mqtt://' + mqttHost, {
 			clientId: deviceId,
 			password: authToken,
@@ -87,7 +90,6 @@ var payloadServer = net.createServer((socket) => {
 			}
 
 			client.end()
-			socket.end()
 		})
 	})
 })
