@@ -1,6 +1,6 @@
 {
   "name": "concava-connector-spul",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "ConCaVa connector for the SPUL protocol.",
   "main": "lib/connector.js",
   "scripts": {
