@@ -15,7 +15,7 @@ const log = bunyan.createLogger({
 const bigEndian     = (process.env['BIG_ENDIAN'] !== 'false' && process.env['BIG_ENDIAN'] !== '0')
 const mqttHost      = (process.env['MQTT_HOST'] || 'unknown.host')
 const headerSize    = (1 * process.env['HEADER_SIZE'] || 12)
-//const maxFrameSize  = (1 * process.env['MAX_FRAME_SIZE'] || 500)
+const maxFrameSize  = (1 * process.env['MAX_FRAME_SIZE'] || (512 - headerSize))
 const authToken     = (process.env['X_AUTH_TOKEN'] || 'unknown')
 const timestampPort = 3333
 const payloadPort   = 5555
@@ -57,14 +57,23 @@ var payloadServer = net.createServer((socket) => {
 		var blocks = buf.readInt8(8)
 		var size = buf.readInt8(9)
 
+		// Close immediately, prevent ETIMEDOUT
+		socket.end()
+
+		if (buf.length > headerSize + maxFrameSize) {
+			log.error({
+				type: 'error', timestamp,
+				addr: remoteAddress + remotePort,
+				deviceId, blocks, size
+			}, 'Max frame size exceeded. Skipping')
+			return
+		}
+
 		log.info({
 			type: 'data', timestamp,
 			addr: remoteAddress + remotePort,
 			deviceId, blocks, size
 		})
-
-		// Close immediately, prevent ETIMEDOUT
-		socket.end()
 
 		var client = mqtt.connect('mqtt://' + mqttHost, {
 			clientId: deviceId,
