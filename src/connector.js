@@ -57,9 +57,6 @@ var payloadServer = net.createServer((socket) => {
 		var blocks = buf.readInt8(8)
 		var size = buf.readInt8(9)
 
-		// Close immediately, prevent ETIMEDOUT
-		socket.end()
-
 		if (buf.length > headerSize + maxFrameSize) {
 			log.error({
 				type: 'error', timestamp,
