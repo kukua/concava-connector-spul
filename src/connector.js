@@ -30,12 +30,9 @@ const authToken     = (process.env['AUTH_TOKEN'] || 'unknown')
 // Timestamp server
 var timestamps = net.createServer((socket) => {
 	var timestamp = Math.round(Date.now() / 1000)
-	var { remoteAddress, remotePort } = socket
+	var addr = socket.remoteAddress + socket.remotePort
 
-	log.info({
-		type: 'timestamp', timestamp,
-		addr: remoteAddress + remotePort
-	})
+	log.info({ type: 'timestamp', timestamp, addr })
 
 	var buf = new Buffer(4)
 	buf[bigEndian ? 'writeUInt32BE' : 'writeUInt32LE'](timestamp)
@@ -51,10 +48,24 @@ timestamps.listen(timestampPort)
 log.info('Timestamp server listening on ' + timestampPort)
 
 // Payload server
+var total = 0
 var payloadServer = net.createServer((socket) => {
+	var addr = socket.remoteAddress + socket.remotePort
+
+	total += 1
+	log.debug({ type: 'connect', addr, total })
+
+	socket.on('close', () => {
+		total -= 1
+		log.debug({ type: 'disconnect', addr, total })
+	})
+	socket.on('error', (err) => {
+		log.error({
+			type: 'error', addr, stack: err.stack
+		}, '' + err)
+	})
 	socket.on('data', (buf) => {
 		var timestamp = Math.round(Date.now() / 1000)
-		var { remoteAddress, remotePort } = socket
 		var deviceId  = buf.toString('hex', 0, 8)
 		var blocks = buf.readInt8(8)
 		var size = buf.readInt8(9)
@@ -62,16 +73,14 @@ var payloadServer = net.createServer((socket) => {
 		if (buf.length > headerSize + maxFrameSize) {
 			log.error({
 				type: 'error', timestamp,
-				addr: remoteAddress + remotePort,
-				deviceId, blocks, size
+				addr, deviceId, blocks, size
 			}, 'Max frame size exceeded. Skipping')
 			return
 		}
 
 		log.info({
 			type: 'data', timestamp,
-			addr: remoteAddress + remotePort,
-			deviceId, blocks, size
+			addr, deviceId, blocks, size
 		})
 
 		var client = mqtt.connect('mqtt://' + mqttHost, {
@@ -82,8 +91,7 @@ var payloadServer = net.createServer((socket) => {
 		client.on('error', (err) => {
 			log.error({
 				type: 'error', timestamp,
-				addr: remoteAddress + remotePort,
-				deviceId, buffer: buf.toString('hex'),
+				addr, deviceId, buffer: buf.toString('hex'),
 				stack: err.stack
 			}, '' + err)
 		})
@@ -94,8 +102,7 @@ var payloadServer = net.createServer((socket) => {
 
 				log.info({
 					type: 'payload', timestamp,
-					addr: remoteAddress + remotePort,
-					deviceId
+					addr, deviceId
 				}, payload.toString('hex'))
 
 				client.publish('data', payload)
