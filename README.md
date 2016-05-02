@@ -38,7 +38,7 @@ curl https://raw.githubusercontent.com/kukua/concava-connector-spul/master/.env.
 
 touch $PWD/connector-spul.log
 docker run -d -p 3333:3333 -p 5555:5555 \
-	-v $PWD/connector-spul.log:/logs/info.log
+	-v $PWD/connector-spul.log:/spul.log
 	--env-file .env --name spul_connector \
 	kukuadev/concava-connector-spul
 ```

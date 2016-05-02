@@ -3,11 +3,12 @@ import bunyan from 'bunyan'
 import mqtt from 'mqtt'
 
 // Logger
+const debug = (process.env['DEBUG'] === 'true' || process.env['DEBUG'] === '1')
 const log = bunyan.createLogger({
 	name: (process.env['LOG_NAME'] || 'concava-connector-spul'),
 	streams: [
 		{ level: 'error', stream: process.stdout },
-		{ level: 'info', path: '/logs/info.log' }
+		{ level: (debug ? 'debug' : 'info'), path: '/spul.log' }
 	]
 })
 
