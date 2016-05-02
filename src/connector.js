@@ -19,13 +19,13 @@ process.on('uncaughtException', (err) => {
 })
 
 // Configuration
-const bigEndian     = (process.env['BIG_ENDIAN'] !== 'false' && process.env['BIG_ENDIAN'] !== '0')
-const mqttHost      = (process.env['MQTT_HOST'] || 'unknown.host')
-const headerSize    = (1 * process.env['HEADER_SIZE'] || 12)
-const maxFrameSize  = (1 * process.env['MAX_FRAME_SIZE'] || (512 - headerSize))
-const authToken     = (process.env['AUTH_TOKEN'] || 'unknown')
 const timestampPort = (parseInt(process.env['SPUL_TS_PORT']) || 3333)
 const payloadPort   = (parseInt(process.env['SPUL_PORT']) || 5555)
+const bigEndian     = (process.env['BIG_ENDIAN'] !== 'false' && process.env['BIG_ENDIAN'] !== '0')
+const headerSize    = (1 * process.env['HEADER_SIZE'] || 12)
+const maxFrameSize  = (1 * process.env['MAX_FRAME_SIZE'] || (512 - headerSize))
+const mqttHost      = (process.env['MQTT_HOST'] || 'unknown.host')
+const authToken     = (process.env['AUTH_TOKEN'] || 'unknown')
 
 // Timestamp server
 var timestamps = net.createServer((socket) => {
