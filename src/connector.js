@@ -4,11 +4,12 @@ import mqtt from 'mqtt'
 
 // Logger
 const debug = (process.env['DEBUG'] === 'true' || process.env['DEBUG'] === '1')
+const logFile = (process.env['LOG_FILE'] || '/spul.log')
 const log = bunyan.createLogger({
 	name: (process.env['LOG_NAME'] || 'concava-connector-spul'),
 	streams: [
 		{ level: 'error', stream: process.stdout },
-		{ level: (debug ? 'debug' : 'info'), path: '/spul.log' }
+		{ level: (debug ? 'debug' : 'info'), path: logFile }
 	]
 })
 
@@ -17,7 +18,7 @@ const bigEndian     = (process.env['BIG_ENDIAN'] !== 'false' && process.env['BIG
 const mqttHost      = (process.env['MQTT_HOST'] || 'unknown.host')
 const headerSize    = (1 * process.env['HEADER_SIZE'] || 12)
 const maxFrameSize  = (1 * process.env['MAX_FRAME_SIZE'] || (512 - headerSize))
-const authToken     = (process.env['X_AUTH_TOKEN'] || 'unknown')
+const authToken     = (process.env['AUTH_TOKEN'] || 'unknown')
 const timestampPort = 3333
 const payloadPort   = 5555
 
