@@ -3,7 +3,6 @@ MAINTAINER Maurits van Mastrigt <maurits@kukua.cc>
 
 WORKDIR /data
 COPY ./ /data/
-RUN mkdir /logs
 RUN npm install
 RUN npm run compile
 
