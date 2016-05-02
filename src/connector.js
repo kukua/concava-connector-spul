@@ -8,7 +8,7 @@ const logFile = (process.env['LOG_FILE'] || '/spul.log')
 const log = bunyan.createLogger({
 	name: (process.env['LOG_NAME'] || 'concava-connector-spul'),
 	streams: [
-		{ level: 'error', stream: process.stdout },
+		{ level: 'warn', stream: process.stdout },
 		{ level: (debug ? 'debug' : 'info'), path: logFile }
 	]
 })
