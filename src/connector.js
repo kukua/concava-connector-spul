@@ -85,7 +85,8 @@ var payloadServer = net.createServer((socket) => {
 
 		log.info({
 			type: 'data', timestamp,
-			addr, deviceId, blocks, size
+			addr, deviceId, blocks, size,
+			payloads: buf.slice(headerSize)
 		})
 
 		var client = mqtt.connect('mqtt://' + mqttHost, {
