@@ -21,6 +21,7 @@ process.on('uncaughtException', (err) => {
 // Configuration
 const timestampPort = (parseInt(process.env['SPUL_TS_PORT']) || 3333)
 const payloadPort   = (parseInt(process.env['SPUL_PORT']) || 5555)
+const socketTimeout = (parseInt(process.env['SOCKET_TIMEOUT']) || 30 * 1000) // ms
 const bigEndian     = (process.env['BIG_ENDIAN'] !== 'false' && process.env['BIG_ENDIAN'] !== '0')
 const headerSize    = (1 * process.env['HEADER_SIZE'] || 12)
 const maxFrameSize  = (1 * process.env['MAX_FRAME_SIZE'] || (512 - headerSize))
@@ -29,6 +30,8 @@ const authToken     = (process.env['AUTH_TOKEN'] || 'unknown')
 
 // Timestamp server
 var timestamps = net.createServer((socket) => {
+	socket.setTimeout(socketTimeout, socket.destroy)
+
 	var timestamp = Math.round(Date.now() / 1000)
 	var addr = socket.remoteAddress + socket.remotePort
 
@@ -50,6 +53,8 @@ log.info('Timestamp server listening on ' + timestampPort)
 // Payload server
 var total = 0
 var payloadServer = net.createServer((socket) => {
+	socket.setTimeout(socketTimeout, socket.destroy)
+
 	var addr = socket.remoteAddress + socket.remotePort
 
 	total += 1
