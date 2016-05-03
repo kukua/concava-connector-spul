@@ -6,7 +6,7 @@
   "scripts": {
     "compile": "babel -d lib/ src/",
     "start": "node lib/connector.js",
-    "lint": "eslint src/",
+    "lint": "eslint src/ && eslint tools/",
     "test": "babel-node tools/test.js"
   },
   "pre-commit": "lint",
