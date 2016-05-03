@@ -1,6 +1,6 @@
 # SPUL Connector
 
-> ConCaVa connector for the SPUL protocol.
+> SPUL connector for splitting spul buffers into binary payloads and forwarding it to ConCaVa.
 
 ## Documentation
 
@@ -19,6 +19,7 @@ See [`.env.sample`](https://github.com/kukua/concava-connector-spul/tree/master/
 git clone https://github.com/kukua/concava-connector-spul.git
 cd concava-connector-spul
 cp .env.sample .env
+chmod 600 .env
 # > Edit .env
 
 npm install
@@ -26,7 +27,7 @@ source .env
 npm start
 ```
 
-Tested with NodeJS v4.2.1.
+Tested with NodeJS v5.1
 
 ### Docker
 
@@ -34,11 +35,12 @@ First, [install Docker](http://docs.docker.com/engine/installation/). Then run:
 
 ```bash
 curl https://raw.githubusercontent.com/kukua/concava-connector-spul/master/.env.sample > .env
+chmod 600 .env
 # > Edit .env
 
-touch $PWD/connector-spul.log
+touch $PWD/spul.log
 docker run -d -p 3333:3333 -p 5555:5555 \
-	-v $PWD/connector-spul.log:/spul.log
+	-v $PWD/spul.log:/spul.log
 	--env-file .env --name spul_connector \
 	kukuadev/concava-connector-spul
 ```
