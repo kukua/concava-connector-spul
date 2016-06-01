@@ -11,14 +11,14 @@ The project documentation is hosted on [http://kukua.github.io/concava-connector
 The SPUL connector can be run as a NodeJS program or in a Docker container.
 
 Make sure [ConCaVa](https://github.com/kukua/concava) is setup as well.
-See [`.env.sample`](https://github.com/kukua/concava-connector-spul/tree/master/.env.sample) for the default configuration.
+See [`.env.example`](https://github.com/kukua/concava-connector-spul/tree/master/.env.example) for the default configuration.
 
 ### NodeJS
 
 ```bash
 git clone https://github.com/kukua/concava-connector-spul.git
 cd concava-connector-spul
-cp .env.sample .env
+cp .env.example .env
 chmod 600 .env
 # > Edit .env
 
@@ -35,7 +35,7 @@ Tested with NodeJS v5.1
 First, [install Docker](http://docs.docker.com/engine/installation/). Then run:
 
 ```bash
-curl https://raw.githubusercontent.com/kukua/concava-connector-spul/master/.env.sample > .env
+curl https://raw.githubusercontent.com/kukua/concava-connector-spul/master/.env.example > .env
 chmod 600 .env
 # > Edit .env
 
