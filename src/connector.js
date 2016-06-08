@@ -55,7 +55,7 @@ var total = 0
 var payloadServer = net.createServer((socket) => {
 	socket.setTimeout(socketTimeout, socket.destroy)
 
-	var addr = socket.remoteAddress + socket.remotePort
+	var addr = socket.remoteAddress + ':' + socket.remotePort
 
 	total += 1
 	log.debug({ type: 'connect', addr, total })
