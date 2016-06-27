@@ -79,7 +79,7 @@ var payloadServer = net.createServer((socket) => {
 			log.error({
 				type: 'error', timestamp,
 				addr, deviceId, blocks, size,
-				payloads: buf.slice(headerSize).toString('hex'),
+				payload: buf.slice(headerSize).toString('hex'),
 			}, 'Max frame size exceeded. Skipping')
 			return
 		}
@@ -87,7 +87,7 @@ var payloadServer = net.createServer((socket) => {
 		log.info({
 			type: 'data', timestamp,
 			addr, deviceId, blocks, size,
-			payloads: buf.slice(headerSize).toString('hex')
+			payload: buf.slice(headerSize).toString('hex')
 		})
 
 		var client = mqtt.connect('mqtt://' + mqttHost, {
