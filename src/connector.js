@@ -78,7 +78,8 @@ var payloadServer = net.createServer((socket) => {
 		if (buf.length > headerSize + maxFrameSize) {
 			log.error({
 				type: 'error', timestamp,
-				addr, deviceId, blocks, size
+				addr, deviceId, blocks, size,
+				payloads: buf.slice(headerSize).toString('hex'),
 			}, 'Max frame size exceeded. Skipping')
 			return
 		}
