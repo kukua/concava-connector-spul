@@ -1,0 +1,4 @@
+[
+  { "name": "Azure concava staging", "host": "[NAME:PORT]"},
+  { "name": "Azure concava production", "host": "[NAME:PORT]"}
+]

@@ -1,0 +1,4 @@
+PreCommit:
+  ALL:
+    exclude:
+      - 'node_modules/**'
