@@ -122,20 +122,18 @@ var payloadServer = net.createServer((socket) => {
 			payload: buf.slice(headerSize).toString('hex')
 		})
 
-		sendDataToConcava(mqttHost,deviceId,buf,addr,blocks,size,timestamp)
+		sendDataToConcava(mqttHost, deviceId, buf, addr, blocks, size, timestamp)
 
 		// handle multiple concava connections
 		try {
-			concavaInstances.forEach( ( concavaInstance ) => {
+			concavaInstances.forEach(({ name, host })  => {
 
 				try {
 
-					sendDataToConcava(concavaInstance.host, deviceId, buf, addr, blocks, size, timestamp)
+					sendDataToConcava(host, deviceId, buf, addr, blocks, size, timestamp)
 
 				} catch (exception){
-					// failed to send to instance
-                    // send email
-					log.error('Failed to send data: ' + concavaInstance.name + '-' + concavaInstance.host + exception)
+					log.error(`Failed to send data: ${name} - ${host} ${exception}`)
 				}
 			})
 		} catch (exception){
