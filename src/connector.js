@@ -3,8 +3,6 @@ import bunyan from 'bunyan'
 import mqtt from 'mqtt'
 import path from 'path'
 
-const concavaInstances = require(path.resolve(process.env.CONCAVA_INSTANCES_PATH))
-
 // Logger
 const debug = (process.env['DEBUG'] === 'true' || process.env['DEBUG'] === '1')
 const logFile = (process.env['LOG_FILE'] || '/tmp/output.log')
@@ -126,16 +124,16 @@ var payloadServer = net.createServer((socket) => {
 
 		// handle multiple concava connections
 		try {
-			concavaInstances.forEach(({ name, host })  => {
-
-				try {
-
-					sendDataToConcava(host, deviceId, buf, addr, blocks, size, timestamp)
-
-				} catch (exception){
-					log.error(`Failed to send data: ${name} - ${host} ${exception}`)
-				}
-			})
+			if(process.env.CONCAVA_INSTANCES_PATH){
+				const concavaInstances = require(path.resolve(process.env.CONCAVA_INSTANCES_PATH))
+				concavaInstances.forEach(({name, host}) => {
+					try {
+						sendDataToConcava(host, deviceId, buf, addr, blocks, size, timestamp)
+					} catch (exception) {
+						log.error(`Failed to send data: ${name} - ${host} ${exception}`)
+					}
+				})
+			}
 		} catch (exception){
 			log.error('Failed to read file: ' + exception)
 		}

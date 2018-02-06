@@ -30,6 +30,11 @@ npm start
 
 Tested with NodeJS v5.1
 
+### Multitenancy
+To allow spul to send data to multiple concava instances, provide the
+`CONCAVA_INSTANCES_PATH` as a `.json` file in the `.env`. This file should
+ be like the [concava-instances.example.json](/concava-instances.example.json) file.
+
 ### Docker
 
 First, [install Docker](http://docs.docker.com/engine/installation/). Then run:
