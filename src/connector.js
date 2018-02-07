@@ -1,6 +1,7 @@
 import net from 'net'
 import bunyan from 'bunyan'
 import mqtt from 'mqtt'
+import path from 'path'
 
 // Logger
 const debug = (process.env['DEBUG'] === 'true' || process.env['DEBUG'] === '1')
@@ -50,6 +51,35 @@ var timestamps = net.createServer((socket) => {
 timestamps.listen(timestampPort)
 log.info('Timestamp server listening on ' + timestampPort)
 
+
+function sendDataToConcava(host, deviceId, buf, addr, blocks, size, timestamp){
+	var client = mqtt.connect('mqtt://' + host, {
+		clientId: deviceId,
+		password: authToken,
+		connectTimeout: 3000, // ms
+	})
+	client.on('error', (err) => {
+		log.error({
+			type: 'error', timestamp,
+			addr, deviceId, buffer: buf.toString('hex'),
+			stack: err.stack
+		}, '' + err)
+	})
+	client.on('connect', () => {
+		for (let i = 0; i < blocks; i += 1) {
+			let start = headerSize + i * size
+			let payload = buf.slice(start, start + size)
+			log.info({
+				type: 'payload', timestamp,
+				addr, deviceId
+			}, payload.toString('hex'))
+
+			client.publish('data', payload)
+		}
+
+		client.end()
+	})
+}
 // Payload server
 var total = 0
 var payloadServer = net.createServer((socket) => {
@@ -90,33 +120,23 @@ var payloadServer = net.createServer((socket) => {
 			payload: buf.slice(headerSize).toString('hex')
 		})
 
-		var client = mqtt.connect('mqtt://' + mqttHost, {
-			clientId: deviceId,
-			password: authToken,
-			connectTimeout: 3000, // ms
-		})
-		client.on('error', (err) => {
-			log.error({
-				type: 'error', timestamp,
-				addr, deviceId, buffer: buf.toString('hex'),
-				stack: err.stack
-			}, '' + err)
-		})
-		client.on('connect', () => {
-			for (let i = 0; i < blocks; i += 1) {
-				let start = headerSize + i * size
-				let payload = buf.slice(start, start + size)
+		sendDataToConcava(mqttHost, deviceId, buf, addr, blocks, size, timestamp)
 
-				log.info({
-					type: 'payload', timestamp,
-					addr, deviceId
-				}, payload.toString('hex'))
-
-				client.publish('data', payload)
+		// handle multiple concava connections
+		try {
+			if(process.env.CONCAVA_INSTANCES_PATH){
+				const concavaInstances = require(path.resolve(process.env.CONCAVA_INSTANCES_PATH))
+				concavaInstances.forEach(({name, host}) => {
+					try {
+						sendDataToConcava(host, deviceId, buf, addr, blocks, size, timestamp)
+					} catch (exception) {
+						log.error(`Failed to send data: ${name} - ${host} ${exception}`)
+					}
+				})
 			}
-
-			client.end()
-		})
+		} catch (exception){
+			log.error('Failed to read file: ' + exception)
+		}
 	})
 }).on('close', () => {
 	log.info('Payload server closed')
